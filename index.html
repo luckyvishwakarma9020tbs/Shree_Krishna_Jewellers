@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6d1420">
+<title>Shree Krishna Jewellers</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shree Krishna">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login" class="login">
+  <div class="login-card">
+    <img class="login-logo" src="icon-512.png" alt="Shree Krishna Jewellers">
+    <h1>Shree Krishna Jewellers</h1>
+    <p class="muted">Customer Khata, Stock &amp; Girvi Book</p>
+    <input id="pw" type="password" placeholder="Password" autocomplete="off" aria-label="Password">
+    <button id="loginBtn" class="btn primary big">Open</button>
+    <p id="loginErr" class="err" role="alert"></p>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app" hidden>
+  <div class="sticky">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo"><img src="icon-192.png" alt="Shree Krishna Jewellers"></span>
+        <span><b>Shree Krishna Jewellers</b><small>Khata · Stock · Girvi</small></span>
+      </div>
+      <div class="hbtns">
+        <button class="iconbtn" data-go="admin" aria-label="Admin and settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        </button>
+        <button id="lockBtn" class="iconbtn" aria-label="Log out">
+          <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </button>
+      </div>
+    </header>
+    <button id="rWarnBar" class="warnbar remind" hidden></button>
+    <button id="gWarnBar" class="warnbar girvi" hidden></button>
+  </div>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="screen">
+      <div class="hero card shine">
+        <small id="heroDate"></small>
+        <h2>Namaste</h2>
+        <div class="hero-amt"><span id="stToday">₹0</span><small>Today's sales</small></div>
+        <div class="hero-orn" aria-hidden="true"></div>
+      </div>
+
+      <div id="backupNudge" class="nudge" hidden>
+        <span>Backup lene ka time ho gaya hai.</span>
+        <button class="btn small" data-go="admin">Backup</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat card shine"><span id="stTotal">₹0</span><small>Total sales</small></div>
+        <div class="stat card shine due"><span id="stDue">₹0</span><small>Customer udhaar baaki</small></div>
+        <div class="stat card shine"><span id="stGold">0</span><small>Gold items in stock</small></div>
+        <div class="stat card shine"><span id="stSilver">0</span><small>Silver items in stock</small></div>
+        <div class="stat card shine"><span id="stCount">0</span><small>Customers</small></div>
+        <div class="stat card shine"><span id="stOrders">0</span><small>Open orders · <i id="stAdv">₹0</i> advance</small></div>
+        <div class="stat card shine"><span id="stGirvi">0</span><small>Active girvi</small></div>
+        <div class="stat card shine"><span id="stGirviAmt">₹0</span><small>Girvi principal out</small></div>
+      </div>
+
+      <div class="actions">
+        <button class="tile" data-go="add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><b>New Sale</b><small>Product no. + bill</small></button>
+        <button class="tile" data-act="addItem"><svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/></svg><b>Add Item</b><small>Gold / Silver, number milega</small></button>
+        <button class="tile" data-go="orderAdd"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg><b>New Order</b><small>Advance payment</small></button>
+        <button class="tile" data-go="girviAdd"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><b>New Girvi</b><small>Item pledge + loan</small></button>
+      </div>
+
+      <div id="homeRemWrap" hidden>
+        <h3>Reminders</h3>
+        <div id="homeRem" class="list"></div>
+      </div>
+
+      <div id="homeGirviWrap" hidden>
+        <h3>Girvi alerts</h3>
+        <div id="homeGirvi" class="list"></div>
+      </div>
+
+      <h3>Recent customers</h3>
+      <div id="recent" class="list"></div>
+    </section>
+
+    <!-- NEW SALE -->
+    <section id="add" class="screen" hidden>
+      <h2>New Sale</h2>
+      <div id="saleBanner"></div>
+
+      <div class="card">
+        <label>Customer name
+          <input id="fName" placeholder="Naam likho — purana customer mil jayega" autocomplete="off">
+        </label>
+        <label>Phone number
+          <input id="fPhone" type="tel" inputmode="numeric" placeholder="10 digit mobile number" autocomplete="off">
+        </label>
+        <div id="custSug" class="chips"></div>
+        <p id="custNote" class="hint"></p>
+      </div>
+
+      <div id="lines"></div>
+      <button type="button" id="addLine" class="btn big dashed">+ Add another item</button>
+
+      <div class="card bill">
+        <div class="bill-row sm"><span>Items subtotal</span><b id="sumSubtotal">₹0.00</b></div>
+        <div class="row">
+          <label>Making charge
+            <span class="inl"><select id="makingMode"><option value="pct">%</option><option value="amt">₹</option></select><input id="makingVal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></span>
+          </label>
+          <label>GST %<input id="gstPct" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
+        </div>
+        <div class="bill-row sm"><span>Making charge</span><b id="makingCost">₹0.00</b></div>
+        <div class="bill-row sm"><span>GST <small id="gstSplit" class="muted"></small></span><b id="gstCost">₹0.00</b></div>
+        <div class="bill-row"><span>Bill total</span><b id="sumTotal">₹0.00</b></div>
+        <div id="advRow" class="bill-row sm" hidden><span>Advance adjusted</span><b id="sumAdv" class="green">− ₹0.00</b></div>
+        <label>Paid now (₹)
+          <input id="fPaid" type="number" step="0.01" min="0" inputmode="decimal" placeholder="0">
+        </label>
+        <div class="quick">
+          <button type="button" class="chip" data-paid="full">Full payment</button>
+          <button type="button" class="chip" data-paid="half">Half</button>
+          <button type="button" class="chip" data-paid="zero">Nothing</button>
+        </div>
+        <div id="balBox" class="balbox"><span id="balLabel">Balance</span><b id="sumBal">₹0.00</b></div>
+        <div id="intBox" class="intbox">
+          <b>Udhaar ka due date &amp; interest</b>
+          <div class="row">
+            <label>Payment due (din baad)<input id="iDue" type="number" min="0" step="1" inputmode="numeric"></label>
+            <label>Interest<select id="iType"><option value="none">Koi nahi</option><option value="simple">Simple (normal)</option><option value="compound">Compound</option></select></label>
+          </div>
+          <div id="iRateRow"><label>Interest rate (% per month)<input id="iRate" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <p class="muted">Due date ke baad se chalta hai. Payment pehle interest mein, phir principal mein jaati hai.</p></div>
+        </div>
+      </div>
+
+      <button id="saveBtn" class="btn primary big">Save &amp; generate receipt</button>
+    </section>
+
+    <!-- KHATA (customers) -->
+    <section id="khata" class="screen" hidden>
+      <h2>Customer Khata</h2>
+      <div id="kSummary" class="card sumcard"></div>
+      <input id="kSearch" class="search" placeholder="Customer ka naam ya phone number search karo" aria-label="Search customers">
+      <div class="chips" id="kChips">
+        <button class="chip on" data-kf="all">All</button>
+        <button class="chip" data-kf="due">Baaki hai</button>
+        <button class="chip" data-kf="clear">Clear</button>
+      </div>
+      <div id="kList" class="list"></div>
+    </section>
+
+    <!-- CUSTOMER DETAIL -->
+    <section id="custDetail" class="screen" hidden>
+      <button class="link" data-go="khata">‹ Back to Khata</button>
+      <div id="cdBody" class="card"></div>
+      <div class="actions three">
+        <button id="cdPay" class="btn primary">Receive payment</button>
+        <button id="cdNew" class="btn">+ New purchase</button>
+        <button id="cdRemind" class="btn">WhatsApp reminder</button>
+        <button id="cdStmt" class="btn">Statement</button>
+      </div>
+      <div id="cdOrders" class="list"></div>
+      <h3>Purchases</h3>
+      <div id="cdRecs" class="list"></div>
+      <h3>Payment history</h3>
+      <div id="cdTl" class="card"></div>
+    </section>
+
+    <!-- PURCHASE DETAIL -->
+    <section id="detail" class="screen" hidden>
+      <button class="link" data-go="custDetail">‹ Back to customer</button>
+      <div id="detailBody" class="card"></div>
+      <button id="detailPay" class="btn primary big">Receive payment</button>
+      <button id="detailReceipt" class="btn big">View receipt</button>
+      <button id="detailInterest" class="btn big">Due date &amp; interest</button>
+      <button id="detailDelete" class="btn danger big">Delete record</button>
+    </section>
+
+    <!-- RECEIPT -->
+    <section id="receipt" class="screen" hidden>
+      <div class="noprint receipt-actions">
+        <button class="btn" id="rcBack">‹ Back</button>
+        <button class="btn primary" id="rcPrint">Print / Save PDF</button>
+        <button class="btn" id="rcDownload">Download</button>
+        <button class="btn" id="rcWhats">WhatsApp</button>
+      </div>
+      <div id="receiptPaper"></div>
+    </section>
+
+    <!-- STOCK -->
+    <section id="stock" class="screen" hidden>
+      <div class="head-row">
+        <h2>Stock</h2>
+        <button class="btn primary small" data-act="addItem">+ Add Item</button>
+      </div>
+      <div id="stockSeg" class="seg"></div>
+      <div id="catBar" class="catbar"></div>
+      <input id="stockSearch" class="search" inputmode="search" placeholder="Product number ya naam search" aria-label="Search stock">
+      <div id="histCats" class="chips" hidden>
+        <button class="chip on" data-hc="all">All</button>
+        <button class="chip" data-hc="gold">Gold</button>
+        <button class="chip" data-hc="silver">Silver</button>
+      </div>
+      <select id="histCatSel" hidden></select>
+      <div id="stockInfo"></div>
+      <div id="stockList" class="list"></div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="orders" class="screen" hidden>
+      <div class="head-row">
+        <h2>Advance Orders</h2>
+        <button class="btn primary small" data-go="orderAdd">+ New Order</button>
+      </div>
+      <div id="oSummary" class="card sumcard"></div>
+      <input id="oSearch" class="search" placeholder="Search customer, phone ya order" aria-label="Search orders">
+      <div class="chips" id="oChips">
+        <button class="chip on" data-of="open">Open</button>
+        <button class="chip" data-of="delivered">Delivered</button>
+        <button class="chip" data-of="cancelled">Cancelled</button>
+        <button class="chip" data-of="all">All</button>
+      </div>
+      <div id="oList" class="list"></div>
+    </section>
+
+    <section id="orderAdd" class="screen" hidden>
+      <button class="link" data-go="orders">‹ Back to Orders</button>
+      <h2>New Order</h2>
+      <p class="muted">Customer ne order diya hai, abhi purchase nahi kiya — sirf advance liya hai.</p>
+      <div class="card">
+        <label>Customer name<input id="oName" placeholder="Naam likho — purana customer mil jayega" autocomplete="off"></label>
+        <label>Phone number<input id="oPhone" type="tel" inputmode="numeric" placeholder="10 digit mobile number" autocomplete="off"></label>
+        <div id="oSug" class="chips"></div>
+        <p id="oNote" class="hint"></p>
+        <label>Address <span class="muted">(optional)</span><input id="oAddr" placeholder="Area, city" autocomplete="off"></label>
+      </div>
+      <div class="card">
+        <label>Order kya hai?<input id="oDesc" placeholder="e.g. Gold necklace set, 22K, ~25 g" autocomplete="off"></label>
+        <label>Estimated amount (₹)<input id="oEst" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 10000"></label>
+        <label>Delivery date <span class="muted">(optional, reminder ke liye)</span><input id="oDue" type="date"></label>
+        <label style="margin-bottom:0">Design / item ki photo <span class="muted">(optional)</span></label>
+        <div id="oPhotos" class="phs"></div>
+        <input id="oFile" type="file" accept="image/*" multiple hidden>
+        <input id="oCam" type="file" accept="image/*" capture="environment" hidden>
+      </div>
+      <div class="card">
+        <label>Advance liya (₹)<input id="oAdv" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 1000"></label>
+        <div class="row">
+          <label>Mode<select id="oMode"><option>Cash</option><option>UPI</option><option>Card</option><option>Bank transfer</option></select></label>
+          <label>Note<input id="oAdvNote" placeholder="optional"></label>
+        </div>
+      </div>
+      <button id="oSave" class="btn primary big">Save order &amp; advance</button>
+    </section>
+
+    <section id="orderDetail" class="screen" hidden>
+      <button class="link" data-go="orders">‹ Back to Orders</button>
+      <div id="odBody" class="card"></div>
+      <button id="odAdd" class="btn primary big">+ Aur advance lo</button>
+      <button id="odConvert" class="btn big">Purchase mein badlo (bill banao)</button>
+      <button id="odSlip" class="btn big">Advance receipt dekho / print</button>
+      <button id="odEdit" class="btn big">Order edit karo</button>
+      <button id="odCancel" class="btn danger big">Order cancel karo</button>
+      <button id="odDelete" class="btn danger big">Delete order</button>
+    </section>
+
+    <!-- GIRVI LIST -->
+    <section id="girvi" class="screen" hidden>
+      <div class="head-row">
+        <h2>Girvi</h2>
+        <button class="btn primary small" data-go="girviAdd">+ New Girvi</button>
+      </div>
+      <input id="gSearch" class="search" placeholder="Search name, phone, item or G-number" aria-label="Search girvi">
+      <div id="gChips" class="chips"></div>
+      <div id="gList" class="list"></div>
+    </section>
+
+    <!-- NEW GIRVI -->
+    <section id="girviAdd" class="screen" hidden>
+      <button class="link" data-go="girvi">‹ Back to Girvi</button>
+      <h2>New Girvi</h2>
+      <div class="card">
+        <h3>Customer</h3>
+        <label>Customer name<input id="gName" placeholder="Full name" autocomplete="off"></label>
+        <label>Phone number<input id="gPhone" type="tel" inputmode="numeric" placeholder="10 digit mobile number" autocomplete="off"></label>
+        <label>Address <span class="muted">(optional)</span><input id="gAddr" placeholder="Area, city" autocomplete="off"></label>
+      </div>
+      <div class="card">
+        <h3>Pledged item</h3>
+        <div id="gPhotos" class="phs"></div>
+        <input id="gFile" type="file" accept="image/*" multiple hidden>
+        <input id="gCam" type="file" accept="image/*" capture="environment" hidden>
+        <label>Item name<input id="gItem" placeholder="e.g. Gold chain, Bangles pair" autocomplete="off"></label>
+        <div class="row">
+          <label>Type
+            <select id="gType"><option>Gold</option><option>Silver</option><option>Diamond</option><option>Other</option></select>
+          </label>
+          <label>Pieces<input id="gQty" type="number" min="1" step="1" inputmode="numeric" value="1"></label>
+        </div>
+        <div class="row">
+          <label>Weight (g)<input id="gWeight" type="number" min="0" step="0.001" inputmode="decimal" placeholder="0.000"></label>
+          <label>Purity <span class="muted">(optional)</span><input id="gPurity" placeholder="e.g. 22K, 925"></label>
+        </div>
+        <label>Estimated value (₹) <span class="muted">(optional)</span><input id="gValue" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+      </div>
+      <div class="card">
+        <h3>Loan &amp; interest</h3>
+        <label>Loan amount given (₹)<input id="gPrincipal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+        <div class="row">
+          <label>Interest (% per month)<input id="gRate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 2"></label>
+          <label>Duration (months)<input id="gMonths" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 12"></label>
+        </div>
+        <label>Interest type<select id="gInterestType"><option value="simple">Normal / Simple interest</option><option value="compound">Compound interest (badhta rehta hai)</option></select></label>
+        <div class="quick">
+          <button type="button" class="chip" data-m="3">3 months</button>
+          <button type="button" class="chip" data-m="6">6 months</button>
+          <button type="button" class="chip" data-m="12">12 months</button>
+        </div>
+        <div class="row">
+          <label>Start date<input id="gStart" type="date"></label>
+          <label>Warn before (days)<input id="gWarn" type="number" min="0" step="1" inputmode="numeric"></label>
+        </div>
+        <label>Remarks <span class="muted">(optional)</span><input id="gRemarks" placeholder="Any note" autocomplete="off"></label>
+        <div class="gprev">
+          <div><small>Due date</small><b id="gDue">—</b></div>
+          <div><small>Interest / month</small><b id="gMonthly">₹0.00</b></div>
+          <div><small>Total on due date</small><b id="gTotalDue">₹0.00</b></div>
+        </div>
+      </div>
+      <button id="gSave" class="btn primary big">Save &amp; generate girvi receipt</button>
+    </section>
+
+    <!-- GIRVI DETAIL -->
+    <section id="girviDetail" class="screen" hidden>
+      <button class="link" data-go="girvi">‹ Back to Girvi</button>
+      <div id="gdBody"></div>
+      <button id="gdPay" class="btn primary big">Receive payment</button>
+      <button id="gdRelease" class="btn big">Release item (return to customer)</button>
+      <button id="gdExtend" class="btn big">Extend duration</button>
+      <button id="gdSlip" class="btn big">View / print girvi receipt</button>
+      <button id="gdDelete" class="btn danger big">Delete record</button>
+    </section>
+
+
+    <!-- ADMIN -->
+    <section id="admin" class="screen" hidden>
+      <h2>Admin</h2>
+
+      <div class="card">
+        <h3>Shop</h3>
+        <p class="shopfixed"><b>Shree Krishna Jewellers</b><br>Waghobanagar, Kalwa East, Thane — Near Parsik Tunnel</p>
+        <label>Phone number (receipt par)
+          <input id="sPhone" type="tel" inputmode="tel" placeholder="e.g. 98765 43210">
+        </label>
+        <label>GSTIN <span class="muted">(optional, receipt par)</span>
+          <input id="sGstin" placeholder="e.g. 27ABCDE1234F1Z5" autocomplete="off">
+        </label>
+        <button id="savePhone" class="btn primary">Save</button>
+      </div>
+
+      <div class="card">
+        <h3>Stock categories</h3>
+        <p class="muted">Gold ya Silver ke andar apni category banao (jaise Chain, Ring, Bangle), uska naam aur kitne item tak ka limit set karo. Har category ke product number 1 se limit tak alag chalte hain.</p>
+        <div id="catList"></div>
+        <button id="addCat" class="btn primary">+ Add category</button>
+      </div>
+
+      <div class="card">
+        <h3>Billing defaults</h3>
+        <div class="row">
+          <label>GST %<input id="bGst" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <label>Making charge %<input id="bMaking" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+        </div>
+        <div class="row">
+          <label>Aaj ka Gold rate ₹/g<input id="bGold" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <label>Aaj ka Silver rate ₹/g<input id="bSilver" type="number" min="0" step="0.01" inputmode="decimal"></label>
+        </div>
+        <p class="muted">Sale mein rate apne aap bhar jata hai (har line mein badal sakte ho).</p>
+        <button id="saveBilling" class="btn primary">Save billing defaults</button>
+      </div>
+
+      <div class="card">
+        <h3>Khata (udhaar) defaults</h3>
+        <label>Interest type<select id="kType"><option value="none">Koi interest nahi</option><option value="simple">Simple (normal)</option><option value="compound">Compound</option></select></label>
+        <div class="row">
+          <label>Interest % / month<input id="kRate" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <label>Payment due (din)<input id="kDue" type="number" min="0" step="1" inputmode="numeric"></label>
+        </div>
+        <label>Reminder kitne din pehle se<input id="kRemind" type="number" min="0" step="1" inputmode="numeric"></label>
+        <button id="saveKhata" class="btn primary">Save khata defaults</button>
+      </div>
+
+      <div class="card">
+        <h3>Girvi defaults</h3>
+        <p class="muted">Naye girvi form mein ye values apne aap aa jaati hain.</p>
+        <div class="row">
+          <label>Interest (% / month)<input id="dRate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 2"></label>
+          <label>Duration (months)<input id="dMonths" type="number" min="1" step="1" inputmode="numeric" placeholder="12"></label>
+        </div>
+        <label>Warn before due date (days)<input id="dWarn" type="number" min="0" step="1" inputmode="numeric" placeholder="15"></label>
+        <button id="saveDefaults" class="btn primary">Save defaults</button>
+      </div>
+
+      <div class="card">
+        <h3>Backup (encrypted)</h3>
+        <p class="muted">Customers, stock, orders, girvi aur photos ek encrypted file mein save hote hain. Backup password alag se yaad rakho — wo recover nahi hota. File ko WhatsApp / pendrive mein rakh lo.</p>
+        <p class="muted" id="lastBackup"></p>
+        <button id="backupBtn" class="btn primary">Download encrypted backup</button>
+        <label class="filebtn">Restore from backup
+          <input id="restoreFile" type="file" accept=".skjbackup,.json,application/json,application/octet-stream" hidden>
+        </label>
+      </div>
+
+      <div class="card">
+        <h3>Change app password</h3>
+        <label>Current password <input id="pwOld" type="password" autocomplete="off"></label>
+        <label>New password <input id="pwNew" type="password" autocomplete="off"></label>
+        <button id="pwSave" class="btn primary">Change password</button>
+      </div>
+
+      <div class="card">
+        <h3>Danger zone</h3>
+        <p class="muted">Har delete se pehle app password poochha jata hai.</p>
+        <button class="btn danger" data-wipe="records">Delete all customer records</button>
+        <button class="btn danger" data-wipe="stock">Delete all stock &amp; item history</button>
+        <button class="btn danger" data-wipe="orders">Delete all orders</button>
+        <button class="btn danger" data-wipe="girvi">Delete all girvi records</button>
+        <button class="btn danger" data-wipe="all">Delete everything</button>
+        <button id="logoutBtn" class="btn">Log out</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="Main">
+    <button class="tab" data-go="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+    <button class="tab" data-go="khata"><svg viewBox="0 0 24 24"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 4v16"/></svg><span>Khata</span><i id="tabDotK" class="dot" hidden></i></button>
+    <button class="tab fab" data-go="add" aria-label="New sale"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="tab" data-go="stock"><svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-6M12 21L9 9M12 21l3-12"/></svg><span>Stock</span></button>
+    <button class="tab" data-go="girvi"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Girvi</span><i id="tabDotG" class="dot" hidden></i></button>
+    <button class="tab" data-go="orders"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg><span>Orders</span><i id="tabDotO" class="dot" hidden></i></button>
+  </nav>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h3 id="mTitle"></h3>
+    <div id="mBody"></div>
+    <div class="mbtns">
+      <button class="btn" id="mCancel">Cancel</button>
+      <button class="btn primary" id="mOk">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="lightbox" class="lightbox" hidden><img alt="Photo"></div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
